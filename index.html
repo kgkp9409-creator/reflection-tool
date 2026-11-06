@@ -67,7 +67,13 @@ function makeObstacle(center){
  return [p,q];
 }
 function setObstacleLength(value){const n=clamp(Math.round(Number(value)||1),1,100);$('obstacleLength').value=n;$('obstacleLengthInput').value=n;$('obstacleLengthLabel').textContent=n+'%';draw()}
-function load(file){if(!file||!file.type.startsWith('image/')){status('画像ファイルを選択してください。');return}const url=URL.createObjectURL(file),im=new Image();im.onload=()=>{img=im;URL.revokeObjectURL(url);updateSize();requestAnimationFrame(()=>centerView(getInitialCenter()));status('読み込み完了.保存済みの壁の位置を使用しています。必要なら壁を調整してください。')};im.onerror=()=>{URL.revokeObjectURL(url);status('画像を読み込めませんでした。')};im.src=url}
+function load(file){if(!file||!file.type.startsWith('image/')){status('画像ファイルを選択してください。');return}const url=URL.createObjectURL(file),im=new Image();im.onload=()=>{img=im;URL.revokeObjectURL(url);// 読み込み時は端末の表示幅に収まる倍率を自動選択する。
+// 前回の拡大倍率が保存されていても、画像読み込み時には過度に拡大しない。
+const availableWidth=Math.max(1,viewer.clientWidth-24);
+const fitPercent=Math.floor(availableWidth/im.naturalWidth*100);
+setZoom(Math.max(10,Math.min(55,fitPercent)));
+viewer.scrollLeft=0;viewer.scrollTop=0;
+requestAnimationFrame(()=>centerView(getInitialCenter()));status('読み込み完了.保存済みの壁の位置を使用しています。必要なら壁を調整してください。')};im.onerror=()=>{URL.revokeObjectURL(url);status('画像を読み込めませんでした。')};im.src=url}
 function line(x1,y1,x2,y2,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}function dot(x,y,color,r=6){ctx.beginPath();ctx.arc(x,y,r,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#fff';ctx.stroke()}
 function draw(){const w=c.width,h=c.height;ctx.clearRect(0,0,w,h);if(img)ctx.drawImage(img,0,0,w,h);else{ctx.fillStyle='#263448';ctx.fillRect(0,0,w,h);ctx.fillStyle='#d5e0ee';ctx.font='22px sans-serif';ctx.fillText('画像を読み込んでください',25,50);return}const a=pos({x:Math.min(bounds.x1,bounds.x2),y:Math.min(bounds.y1,bounds.y2)}),b=pos({x:Math.max(bounds.x1,bounds.x2),y:Math.max(bounds.y1,bounds.y2)}),s=pos(source);if($('showBounds').checked){ctx.strokeStyle='#39a3ff';ctx.lineWidth=Math.max(2,w/500);ctx.setLineDash([Math.max(6,w/100),Math.max(4,w/150)]);ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);ctx.setLineDash([]);dot(a.x,a.y,'#39a3ff',Math.max(5,w/180));dot(b.x,b.y,'#39a3ff',Math.max(5,w/180))}dot(s.x,s.y,'#30d99a',Math.max(9,w/110));if(b.x-a.x<2||b.y-a.y<2)return;// 光線と外周4辺・内部線分のうち、最初に衝突する線を選ぶ。
 const walls=[[[a.x,a.y],[b.x,a.y]],[[b.x,a.y],[b.x,b.y]],[[b.x,b.y],[a.x,b.y]],[[a.x,b.y],[a.x,a.y]]];
