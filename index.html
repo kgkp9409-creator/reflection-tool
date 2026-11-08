@@ -85,6 +85,20 @@ const segments=walls.concat(obstacles.map(seg=>seg.map(pos).map(q=>[q.x,q.y])));
 ctx.save();ctx.strokeStyle='#36f4ef';ctx.lineWidth=Math.max(3,w/180);for(const seg of obstacles){const p=pos(seg[0]),q=pos(seg[1]);line(p.x,p.y,q.x,q.y,'#36f4ef',Math.max(3,w/180))}if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&obstacleHover){const [p0,p1]=makeObstacle(obstacleHover).map(pos);ctx.save();ctx.globalAlpha=.65;ctx.setLineDash([Math.max(6,w/120),Math.max(4,w/180)]);line(p0.x,p0.y,p1.x,p1.y,'#ffffff',Math.max(3,w/180));ctx.restore()}ctx.restore();
 let x=clamp(s.x,a.x,b.x),y=clamp(s.y,a.y,b.y);const rad=angle*Math.PI/180;let vx=Math.cos(rad),vy=-Math.sin(rad);let lastHit=-1;
 ctx.lineWidth=Math.max(2,w/250);ctx.lineJoin='round';
+function drawFirstBounceExtension(hitX,hitY,dirX,dirY){
+ const times=[];
+ if(dirX>1e-10)times.push((w-hitX)/dirX);
+ if(dirX<-1e-10)times.push((0-hitX)/dirX);
+ if(dirY>1e-10)times.push((h-hitY)/dirY);
+ if(dirY<-1e-10)times.push((0-hitY)/dirY);
+ const tEnd=Math.min(...times.filter(t=>t>1e-5));
+ if(Number.isFinite(tEnd)){
+  ctx.save();
+  ctx.globalAlpha=.38;
+  line(hitX,hitY,hitX+dirX*tEnd,hitY+dirY*tEnd,'#fff7a8',Math.max(2,w/320));
+  ctx.restore();
+ }
+}
 for(let i=0;i<=bounces;i++){
  let best=null;
  for(let j=0;j<segments.length;j++){
@@ -98,6 +112,7 @@ for(let i=0;i<=bounces;i++){
  const nx=x+vx*best.t,ny=y+vy*best.t;
  const green=Math.round(255*(bounces===0?0:i/bounces));
  line(x,y,nx,ny,`rgb(255,${green},0)`,Math.max(2,w/250));
+ if(i===0&&best.j<4)drawFirstBounceExtension(nx,ny,vx,vy);
  x=nx;y=ny;
  const norm=Math.hypot(best.sx,best.sy);const nxWall=-best.sy/norm,nyWall=best.sx/norm;
  const dotprod=vx*nxWall+vy*nyWall;
