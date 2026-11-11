@@ -36,7 +36,7 @@
 .compact-buttons button{flex:1;min-width:0;padding:7px 2px;font-size:12px;white-space:nowrap;min-height:34px}
 .device-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}.device-presets button{padding:9px 6px;font-weight:700;min-width:0}.device-presets button.active{background:#176e50;border-color:#45d59a}.obstacle-mode-row{display:flex;flex-wrap:nowrap;gap:7px}.obstacle-mode-row button{flex:1;min-width:0;padding:9px 5px;white-space:nowrap;font-size:13px}.obstacle-delete-row{display:flex;flex-wrap:nowrap;gap:7px}.obstacle-delete-row button{flex:1 1 0;min-width:0;white-space:nowrap;font-size:12px;padding:9px 3px}
 
-.device-preset-row{margin:0 0 10px}.device-preset-row .device-presets{display:flex;gap:8px;width:100%}.device-preset-row .device-presets button{flex:1;white-space:nowrap}
+.device-presets{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.device-presets button{font-size:12px;padding:9px 2px}.device-preset-row{margin:0 0 10px}.device-preset-row .device-presets{display:flex;gap:8px;width:100%}.device-preset-row .device-presets button{flex:1;white-space:nowrap}
 </style><style>/* 省スペース表示 */
 .layout{height:100dvh}
 @media(max-width:800px){.layout{height:auto;padding-top:6px;gap:8px}.viewer{height:65dvh}}
@@ -60,21 +60,8 @@ button, input[type="button"], input[type="submit"], select {
 .viewer canvas {
   touch-action: none; /* preserve the app's custom two-finger pinch and pan */
 }
-
-/* iPad game-window frame detection */
-.frame-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:8px 0}
-.frame-tools button{font-size:12px;padding:9px 5px;white-space:normal}
-.frame-numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-.frame-numbers label{font-size:11px;margin:0}.frame-numbers input{width:100%;min-width:0;font-size:12px;padding:6px 2px}
-.frame-hint{font-size:11px;line-height:1.5;color:#b5c8de;margin:6px 0}
-</style></head><body><main class="layout"><section class="viewer" id="viewer"><canvas height="700" id="canvas" width="500"></canvas></section><aside class="sidebar"><div class="quick-actions"><button class="aim-top-button" data-mode="aim" id="aim">角度をドラッグ</button><button id="paste">クリップボード</button><button data-mode="source" id="source">発射地点</button></div><div class="group compact-control-row"><div class="angle-compact"><span class="value" id="angleLabel">45.00°</span><div class="compact-buttons"><button data-step="-0.05">−0.05°</button><button data-step="0.05">＋0.05°</button></div></div><div class="bounce-compact"><div class="compact-bounce-label">反射 <input aria-label="反射回数" id="bounces" max="200" min="0" step="1" type="number" value="8"/></div><div class="compact-buttons"><button aria-label="反射回数を1減らす" id="bounceMinus">−1</button><button aria-label="反射回数を1増やす" id="bouncePlus">＋1</button></div></div></div><div class="group"><label>スクリーンショット</label><input accept="image/*" id="file" type="file"/></div><div class="group"><div class="row obstacle-mode-row"><button data-mode="obstacle-horizontal" id="obstacleHorizontal">水平線を追加</button><button data-mode="obstacle-vertical" id="obstacleVertical">垂直線を追加</button></div><div class="inline-label"><label for="obstacleLength">線の長さ（壁の幅・高さに対する割合）</label><strong id="obstacleLengthLabel">20%</strong></div><input id="obstacleLength" max="100" min="1" step="1" type="range" value="20"/><div class="row"><button id="obstacleLengthMinus">−1%</button><input id="obstacleLengthInput" max="100" min="1" step="1" type="number" value="20"/><span>%</span><button id="obstacleLengthPlus">+1%</button></div><div class="row obstacle-delete-row"><button id="undoObstacle">最後の線を削除</button><button id="clearObstacles">内部反射線を全削除</button></div><div class="hint" id="obstacleCount">内部反射線：0本</div></div><div aria-hidden="true" style="display:none"><button id="reset" type="button"></button><input checked="" id="showReverse" type="checkbox"/><input checked="" id="showBounds" type="checkbox"/></div><div class="group"><div class="row device-preset-row"><div class="device-presets"><button class="primary" id="presetIPhone16" type="button">iPhone 16</button><button class="primary" id="presetIPhoneSE2" type="button">iPhone SE2</button></div></div><label>壁の座標（画像全体に対する割合）</label><div class="coord-grid"><div class="coord-card"><strong>左上</strong><label>X（%）<input id="wallX1" max="100" min="0" step="0.01" type="number"/></label><label>Y（%）<input id="wallY1" max="100" min="0" step="0.01" type="number"/></label><small id="wallPx1">画像読み込み後にpx座標を表示</small></div><div class="coord-card"><strong>右下</strong><label>X（%）<input id="wallX2" max="100" min="0" step="0.01" type="number"/></label><label>Y（%）<input id="wallY2" max="100" min="0" step="0.01" type="number"/></label><small id="wallPx2">画像読み込み後にpx座標を表示</small></div></div><div class="row"><button id="saveWallCoords">壁の座標を保存</button><button id="copyWallCoords">座標をコピー</button></div><label class="checkbox"><input id="wallLock" type="checkbox"/>壁の座標を固定（タップによる変更を禁止）</label><div class="hint">%座標は画像の大きさに依存しません。同じ画面構成のスクショで再利用できます。画面比率やゲームの表示領域が違う端末では座標を調整してください。</div></div><div class="group" id="frameGroup">
-<label>iPad：ゲームウインドウの外枠検出（試作）</label>
-<div class="frame-tools"><button id="detectFrame" class="primary" type="button">外枠を自動検出</button><button id="applyFrameNumbers" type="button">枠の数値を反映</button></div>
-<div class="frame-numbers"><label>左 X(px)<input id="frameX" type="number" min="0" step="1"></label><label>上 Y(px)<input id="frameY" type="number" min="0" step="1"></label><label>幅(px)<input id="frameW" type="number" min="1" step="1"></label><label>高さ(px)<input id="frameH" type="number" min="1" step="1"></label></div>
-<div class="frame-tools"><button id="calibrateFrame" type="button">現在の壁位置を枠に登録</button><button id="applyCalibration" type="button">登録した壁を枠に適用</button></div>
-<label class="checkbox"><input type="checkbox" id="autoFrame" checked>次の画像から自動検出・適用</label>
-<div class="frame-hint" id="frameStatus">まずiPadのスクリーンショットを読み込み、「外枠を自動検出」。青い枠の位置を確認し、必要なら数値で修正してください。初回は壁座標を手動調整してから「現在の壁位置を枠に登録」を押します。以降は外枠に合わせて壁を配置できます。</div>
-</div><div class="group"><label>画像の表示</label><div class="row"><button id="saveInitialCenter">現在の表示中心を初期位置に保存</button><button id="centerOnWall">壁の中心に移動</button></div><div class="hint">画像を読み込んだときの中心位置を保存できます。未設定の場合は壁の中心を表示します。</div><div class="inline-label"><label for="zoomRange">表示倍率</label><strong id="zoomLabel">55%</strong></div><input id="zoomRange" max="200" min="10" step="1" type="range" value="55"/><div class="row"><button id="zoomMinus">−1%</button><input id="zoomInput" max="200" min="10" step="1" type="number" value="55"/><span>%</span><button id="zoomPlus">+1%</button><button id="zoomFit">画面に合わせる</button><button id="zoomReset">55%に戻す</button></div><label class="checkbox"><input id="zoomLock" type="checkbox"/>表示倍率を固定する</label><div class="hint">画像の縦横比は維持されます。2本指でピンチ拡大・縮小、2本指で画像を移動できます。倍率固定中は移動のみ可能です。</div></div><div class="group"><button class="primary" id="save">軌道付き画像を保存</button></div><div class="status" id="status">画像を読み込んでください。</div></aside></main><script>
+.viewer{justify-content:flex-start}
+</style></head><body><main class="layout"><section class="viewer" id="viewer"><canvas height="700" id="canvas" width="500"></canvas></section><aside class="sidebar"><div class="quick-actions"><button class="aim-top-button" data-mode="aim" id="aim">角度をドラッグ</button><button id="paste">クリップボード</button><button data-mode="source" id="source">発射地点</button></div><div class="group compact-control-row"><div class="angle-compact"><span class="value" id="angleLabel">45.00°</span><div class="compact-buttons"><button data-step="-0.05">−0.05°</button><button data-step="0.05">＋0.05°</button></div></div><div class="bounce-compact"><div class="compact-bounce-label">反射 <input aria-label="反射回数" id="bounces" max="200" min="0" step="1" type="number" value="8"/></div><div class="compact-buttons"><button aria-label="反射回数を1減らす" id="bounceMinus">−1</button><button aria-label="反射回数を1増やす" id="bouncePlus">＋1</button></div></div></div><div class="group"><label>スクリーンショット</label><input accept="image/*" id="file" type="file"/></div><div class="group"><div class="row obstacle-mode-row"><button data-mode="obstacle-horizontal" id="obstacleHorizontal">水平線を追加</button><button data-mode="obstacle-vertical" id="obstacleVertical">垂直線を追加</button></div><div class="inline-label"><label for="obstacleLength">線の長さ（壁の幅・高さに対する割合）</label><strong id="obstacleLengthLabel">20%</strong></div><input id="obstacleLength" max="100" min="1" step="1" type="range" value="20"/><div class="row"><button id="obstacleLengthMinus">−1%</button><input id="obstacleLengthInput" max="100" min="1" step="1" type="number" value="20"/><span>%</span><button id="obstacleLengthPlus">+1%</button></div><div class="row obstacle-delete-row"><button id="undoObstacle">最後の線を削除</button><button id="clearObstacles">内部反射線を全削除</button></div><div class="hint" id="obstacleCount">内部反射線：0本</div></div><div aria-hidden="true" style="display:none"><button id="reset" type="button"></button><input checked="" id="showReverse" type="checkbox"/><input checked="" id="showBounds" type="checkbox"/></div><div class="group"><div class="row device-preset-row"><div class="device-presets"><button class="primary" id="presetIPhone16" type="button">iPhone 16</button><button class="primary" id="presetIPhoneSE2" type="button">iPhone SE2</button><button class="primary" id="presetIPad" type="button">iPad（未設定）</button></div></div><div class="row" style="margin:4px 0 10px"><button id="saveDeviceSettings" type="button">選択中の機種に現在の座標・倍率を保存</button></div><label>壁の座標（画像全体に対する割合）</label><div class="coord-grid"><div class="coord-card"><strong>左上</strong><label>X（%）<input id="wallX1" max="100" min="0" step="0.01" type="number"/></label><label>Y（%）<input id="wallY1" max="100" min="0" step="0.01" type="number"/></label><small id="wallPx1">画像読み込み後にpx座標を表示</small></div><div class="coord-card"><strong>右下</strong><label>X（%）<input id="wallX2" max="100" min="0" step="0.01" type="number"/></label><label>Y（%）<input id="wallY2" max="100" min="0" step="0.01" type="number"/></label><small id="wallPx2">画像読み込み後にpx座標を表示</small></div></div><div class="row"><button id="saveWallCoords">壁の座標を保存</button><button id="copyWallCoords">座標をコピー</button></div><label class="checkbox"><input id="wallLock" type="checkbox"/>壁の座標を固定（タップによる変更を禁止）</label><div class="hint">%座標は画像の大きさに依存しません。同じ画面構成のスクショで再利用できます。画面比率やゲームの表示領域が違う端末では座標を調整してください。</div></div><div class="group"><label>画像の表示</label><div class="row"><button id="saveInitialCenter">現在の表示中心を初期位置に保存</button><button id="centerOnWall">壁の中心に移動</button><button id="focusRightGame">右側ゲームへ移動</button></div><div class="hint">横長のiPadスクショは、右側のゲームウインドウを自動で拡大表示します。ウインドウの位置・サイズを固定して使用してください。</div><div class="inline-label"><label for="zoomRange">表示倍率</label><strong id="zoomLabel">55%</strong></div><input id="zoomRange" max="200" min="10" step="1" type="range" value="55"/><div class="row"><button id="zoomMinus">−1%</button><input id="zoomInput" max="200" min="10" step="1" type="number" value="55"/><span>%</span><button id="zoomPlus">+1%</button><button id="zoomFit">画面に合わせる</button><button id="zoomReset">55%に戻す</button></div><label class="checkbox"><input id="zoomLock" type="checkbox"/>表示倍率を固定する</label><div class="hint">画像の縦横比は維持されます。2本指でピンチ拡大・縮小、2本指で画像を移動できます。倍率固定中は移動のみ可能です。</div></div><div class="group"><button class="primary" id="save">軌道付き画像を保存</button></div><div class="status" id="status">画像を読み込んでください。</div></aside></main><script>
 (()=>{'use strict';const $=id=>document.getElementById(id),c=$('canvas'),ctx=c.getContext('2d'),viewer=$('viewer');
 // Prevent Safari image/text long-press menus without disabling app gestures or clipboard controls.
 for(const eventName of ['contextmenu','dragstart','selectstart']){viewer.addEventListener(eventName,e=>e.preventDefault())}
@@ -90,6 +77,22 @@ function centerView(p){if(!img)return;const r=c.getBoundingClientRect(),v=viewer
 function currentViewCenter(){const r=c.getBoundingClientRect(),v=viewer.getBoundingClientRect();return {x:clamp((v.left+viewer.clientWidth/2-r.left)/r.width,0,1),y:clamp((v.top+viewer.clientHeight/2-r.top)/r.height,0,1)}}
 $('saveInitialCenter').onclick=()=>{if(!img){status('先に画像を読み込んでください。');return}try{localStorage.setItem(INITIAL_CENTER_KEY,JSON.stringify(currentViewCenter()));status('現在の表示中心を初期位置として保存しました。')}catch(e){status('初期位置を保存できませんでした。')}};
 $('centerOnWall').onclick=()=>centerView(wallCenter());
+// iPadのゲームウインドウ位置を固定して使う場合の表示設定。
+// スクショ全体でのゲーム外枠のおおよその比率（右側）を基準にする。
+const GAME_RIGHT_REGION={left:.680,top:.060,right:.990,bottom:.960};
+function focusRightGame(zoomPercent){
+ if(!img)return;
+ const r=GAME_RIGHT_REGION;
+ const fitW=(viewer.clientWidth-20)/(img.naturalWidth*(r.right-r.left));
+ const fitH=(viewer.clientHeight-20)/(img.naturalHeight*(r.bottom-r.top));
+ const fit=Math.min(fitW,fitH);
+ setZoom(zoomPercent??Math.round(clamp(fit*100,10,200)));
+ viewer.scrollLeft=0;viewer.scrollTop=0;
+ // CSSのレイアウト確定後にゲーム枠中心をビューア中央へ合わせる。
+ requestAnimationFrame(()=>requestAnimationFrame(()=>centerView({x:(r.left+r.right)/2,y:(r.top+r.bottom)/2})));
+}
+$('focusRightGame').onclick=focusRightGame;
+
 function makeObstacle(center){
  const horizontal=mode==='obstacle-horizontal';
  const length=clamp(Number($('obstacleLengthInput').value)||20,1,100)/100;
@@ -107,107 +110,20 @@ function makeObstacle(center){
 function setObstacleLength(value){const n=clamp(Math.round(Number(value)||1),1,100);$('obstacleLength').value=n;$('obstacleLengthInput').value=n;$('obstacleLengthLabel').textContent=n+'%';draw()}
 function load(file){if(!file||!file.type.startsWith('image/')){status('画像ファイルを選択してください。');return}const url=URL.createObjectURL(file),im=new Image();im.onload=()=>{img=im;URL.revokeObjectURL(url);// 読み込み時は端末の表示幅に収まる倍率を自動選択する。
 // 前回の拡大倍率が保存されていても、画像読み込み時には過度に拡大しない。
-const availableWidth=Math.max(1,viewer.clientWidth-24);
-const fitPercent=Math.floor(availableWidth/im.naturalWidth*100);
-setZoom(Math.max(10,Math.min(55,fitPercent)));
-viewer.scrollLeft=0;viewer.scrollTop=0;
-frameRect=null;runFrameDetection($('autoFrame').checked);requestAnimationFrame(()=>centerView(getInitialCenter()));status('読み込み完了。外枠の検出結果を確認してください。')};im.onerror=()=>{URL.revokeObjectURL(url);status('画像を読み込めませんでした。')};im.src=url}
-
-// This detector uses dark, wide, horizontal runs around the rounded black window header.
-// A candidate is only a suggestion: the user can correct its pixel rectangle.
-const FRAME_CAL_KEY='reflection-ipad-frame-calibration-v1';
-let frameRect=null,frameCalibration=null,frameMessage='';
-try{const p=JSON.parse(localStorage.getItem(FRAME_CAL_KEY));if(p&&['x1','y1','x2','y2'].every(k=>Number.isFinite(p[k])))frameCalibration=p}catch(e){}
-function blackRuns(data,w,y,threshold){
- const result=[];let from=-1;
- for(let x=0;x<=w;x++){
-  let black=false;
-  if(x<w){const k=(y*w+x)*4;black=data[k]<threshold&&data[k+1]<threshold&&data[k+2]<threshold}
-  if(black&&from<0)from=x;
-  else if(!black&&from>=0){if(x-from>=w*.18&&x-from<=w*.75)result.push({left:from,right:x,width:x-from,y});from=-1}
- }
- return result;
-}
-function detectWindowRect(){
- if(!img)return null;
- const work=document.createElement('canvas');
- const scale=Math.min(1,800/img.naturalWidth);work.width=Math.round(img.naturalWidth*scale);work.height=Math.round(img.naturalHeight*scale);
- const g=work.getContext('2d',{willReadFrequently:true});g.drawImage(img,0,0,work.width,work.height);
- const W=work.width,H=work.height,data=g.getImageData(0,0,W,H).data;
- // Scan the top fifth. Game frame has a continuous near-black rounded header.
- const groups=new Map();
- for(let y=Math.round(H*.035);y<Math.round(H*.28);y+=2){
-  for(const run of blackRuns(data,W,y,34)){
-   const center=Math.round(((run.left+run.right)/2)/(W*.025));
-   const width=Math.round(run.width/(W*.025));
-   const key=center+':'+width;
-   const score=run.width/W;
-   const candidate=groups.get(key)||{count:0,score:0,rows:[]};
-   candidate.count++;candidate.score+=score;candidate.rows.push(run);groups.set(key,candidate);
-  }
- }
- const candidates=[...groups.values()].filter(v=>v.count>=2).sort((a,b)=>b.score-a.score);
- for(const g1 of candidates.slice(0,20)){
-  const rows=g1.rows.sort((a,b)=>a.y-b.y);
-  const topRow=rows[Math.floor(rows.length/2)];
-  let x1=Math.min(...rows.map(r=>r.left)),x2=Math.max(...rows.map(r=>r.right));
-  // Horizontal black header has rounded corners: the frame is a few pixels wider.
-  const center=(x1+x2)/2;const width=x2-x1;
-  x1=Math.max(0,Math.round(center-width*.515));x2=Math.min(W,Math.round(center+width*.515));
-  // Estimate vertical boundary from the lower black footer and colored content.
-  const middle=Math.round((x1+x2)/2);
-  let bottom=-1;
-  for(let y=Math.round(H*.98);y>topRow.y+Math.round(H*.25);y-=2){
-   let count=0,total=0;
-   for(let x=x1+12;x<x2-12;x+=5){const k=(y*W+x)*4;if(data[k]<52&&data[k+1]<52&&data[k+2]<52)count++;total++}
-   if(total>0&&count/total>.75){bottom=y;break}
-  }
-  if(bottom<0)continue;
-  let top=rows[0].y;
-  // Look slightly above the complete black stripe for the beginning of rounded corners.
-  for(let y=top;y>=Math.max(0,top-Math.round(H*.03));y--){
-   const k=(y*W+middle)*4;
-   if(data[k]<35&&data[k+1]<35&&data[k+2]<35)top=y;else break;
-  }
-  const fw=x2-x1,fh=bottom-top;
-  if(fh<H*.32||fw<W*.18||fh/fw<1.08)continue;
-  const inv=1/scale;
-  return {x:Math.round(x1*inv),y:Math.round(top*inv),w:Math.round(fw*inv),h:Math.round(fh*inv)};
- }
- return null;
-}
-function updateFrameInputs(){if(!frameRect)return;for(const [id,val] of [['frameX',frameRect.x],['frameY',frameRect.y],['frameW',frameRect.w],['frameH',frameRect.h]])$(id).value=Math.round(val)}
-function frameNote(s){frameMessage=s;$('frameStatus').textContent=s}
-function applyFrameCalibration(){
- if(!frameRect||!frameCalibration){frameNote('先に枠の検出と壁の対応関係の登録が必要です。');return false}
- const r=frameRect,p=frameCalibration;
- const nb={x1:(r.x+p.x1*r.w)/c.width,y1:(r.y+p.y1*r.h)/c.height,x2:(r.x+p.x2*r.w)/c.width,y2:(r.y+p.y2*r.h)/c.height};
- if(Object.values(nb).some(v=>!Number.isFinite(v)||v<0||v>1)||nb.x1>=nb.x2||nb.y1>=nb.y2){frameNote('登録された壁が画像からはみ出します。枠位置を確認してください。');return false}
- bounds=nb;saveBounds();refreshWallCoords();draw();frameNote('登録した壁の相対位置を、検出した外枠に適用しました。青い枠と壁の位置を確認してください。');return true;
-}
-function runFrameDetection(auto=false){
- if(!img){frameNote('先に画像を読み込んでください。');return}
- if(img.naturalWidth<=img.naturalHeight){frameRect=null;frameNote('縦長の画像です。iPadの横向きスクリーンショットで外枠検出を試してください。壁座標は変更していません。');draw();return}
- const found=detectWindowRect();
- if(!found){frameRect=null;frameNote('外枠を確実に検出できませんでした。画像や黒いウインドウの位置を確認してください。壁座標は変更していません。');draw();return}
- frameRect=found;updateFrameInputs();draw();
- if(auto&&frameCalibration){applyFrameCalibration();return}
- frameNote('青い破線が検出した外枠です。誤差があればX/Y/幅/高さを修正してください。壁の位置はまだ変更していません。');
-}
-$('detectFrame').onclick=()=>runFrameDetection(false);
-$('applyFrameNumbers').onclick=()=>{
- if(!img){frameNote('先に画像を読み込んでください。');return}
- const [x,y,w,h]=['frameX','frameY','frameW','frameH'].map(id=>Number($(id).value));
- if([x,y,w,h].some(v=>!Number.isFinite(v))||x<0||y<0||w<=0||h<=0||x+w>c.width||y+h>c.height){frameNote('枠の数値が画像外です。');return}
- frameRect={x,y,w,h};draw();frameNote('青い外枠を数値どおりに移動しました。壁の位置は変更していません。');
-};
-$('calibrateFrame').onclick=()=>{
- if(!img||!frameRect){frameNote('外枠を検出・修正してから実行してください。');return}
- const r=frameRect;frameCalibration={x1:(bounds.x1*c.width-r.x)/r.w,y1:(bounds.y1*c.height-r.y)/r.h,x2:(bounds.x2*c.width-r.x)/r.w,y2:(bounds.y2*c.height-r.y)/r.h};
- try{localStorage.setItem(FRAME_CAL_KEY,JSON.stringify(frameCalibration));frameNote('壁の位置を外枠基準で登録しました。以降は別のスクショで検出枠に合わせて壁を移せます。')}catch(e){frameNote('壁の位置の保存に失敗しました。')}
-};
-$('applyCalibration').onclick=applyFrameCalibration;
-
+const activeKey=getSelectedDeviceKey()||(im.naturalWidth>im.naturalHeight?'ipad':null);
+const savedZoom=activeKey?getDeviceZoom(activeKey):null;
+if(activeKey==='ipad'||(!activeKey&&im.naturalWidth>im.naturalHeight)){
+ // iPad用：保存した倍率、なければ右側ゲームの自動フィットを使う。
+ focusRightGame(savedZoom);
+ status('右側ゲーム画面を表示しました。iPadの位置・倍率は機種別設定から保存できます。');
+}else{
+ const availableWidth=Math.max(1,viewer.clientWidth-24);
+ const fitPercent=Math.floor(availableWidth/im.naturalWidth*100);
+ setZoom(savedZoom??Math.max(10,Math.min(55,fitPercent)));
+ viewer.scrollLeft=0;viewer.scrollTop=0;
+ requestAnimationFrame(()=>centerView(getInitialCenter()));
+ status('読み込み完了。選択した機種の壁座標・初期倍率を使用しています。');
+}};im.onerror=()=>{URL.revokeObjectURL(url);status('画像を読み込めませんでした。')};im.src=url}
 function line(x1,y1,x2,y2,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}function dot(x,y,color,r=6){ctx.beginPath();ctx.arc(x,y,r,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#fff';ctx.stroke()}
 function draw(){const w=c.width,h=c.height;ctx.clearRect(0,0,w,h);if(img)ctx.drawImage(img,0,0,w,h);else{ctx.fillStyle='#263448';ctx.fillRect(0,0,w,h);ctx.fillStyle='#d5e0ee';ctx.font='22px sans-serif';ctx.fillText('画像を読み込んでください',25,50);return}const a=pos({x:Math.min(bounds.x1,bounds.x2),y:Math.min(bounds.y1,bounds.y2)}),b=pos({x:Math.max(bounds.x1,bounds.x2),y:Math.max(bounds.y1,bounds.y2)}),s=pos(source);if($('showBounds').checked){ctx.strokeStyle='#39a3ff';ctx.lineWidth=Math.max(2,w/500);ctx.setLineDash([Math.max(6,w/100),Math.max(4,w/150)]);ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);ctx.setLineDash([]);dot(a.x,a.y,'#39a3ff',Math.max(5,w/180));dot(b.x,b.y,'#39a3ff',Math.max(5,w/180))}dot(s.x,s.y,'#30d99a',Math.max(9,w/110));if(b.x-a.x<2||b.y-a.y<2)return;// 光線と外周4辺・内部線分のうち、最初に衝突する線を選ぶ。
 const walls=[[[a.x,a.y],[b.x,a.y]],[[b.x,a.y],[b.x,b.y]],[[b.x,b.y],[a.x,b.y]],[[a.x,b.y],[a.x,a.y]]];
@@ -268,12 +184,6 @@ if($('showReverse').checked){
     ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+rx*tEnd,oy+ry*tEnd);ctx.stroke();
     ctx.restore();
   }
-}
-if(frameRect){
- ctx.save();ctx.setLineDash([Math.max(8,w/140),Math.max(5,w/200)]);
- ctx.strokeStyle='#00eaff';ctx.lineWidth=Math.max(3,w/380);
- ctx.strokeRect(frameRect.x,frameRect.y,frameRect.w,frameRect.h);
- ctx.restore();
 }
 }
 function setAngle(n){if(!Number.isFinite(n))return;angle=Math.round((((n%360)+360)%360)*20)/20;if(angle>=360)angle=0;$('angleLabel').textContent=angle.toFixed(2)+'°';draw()}
@@ -342,12 +252,71 @@ c.addEventListener('pointerup',endPointer);c.addEventListener('pointercancel',en
 function refreshWallCoords(){if(typeof refreshDevicePresetButtons==='function')refreshDevicePresetButtons();for(const [id,key] of [['wallX1','x1'],['wallY1','y1'],['wallX2','x2'],['wallY2','y2']]){if(document.activeElement!==$(id))$(id).value=(bounds[key]*100).toFixed(2)}if(img){$('wallPx1').textContent=`画像内: (${Math.round(bounds.x1*c.width)}, ${Math.round(bounds.y1*c.height)}) px / ${c.width}×${c.height}`;$('wallPx2').textContent=`画像内: (${Math.round(bounds.x2*c.width)}, ${Math.round(bounds.y2*c.height)}) px / ${c.width}×${c.height}`}else{$('wallPx1').textContent='画像を読み込むとpx座標を表示';$('wallPx2').textContent='画像を読み込むとpx座標を表示'}}
 function applyWallLock(){const locked=$('wallLock').checked;['wallX1','wallY1','wallX2','wallY2','saveWallCoords'].forEach(id=>$(id).disabled=locked);try{localStorage.setItem(WALL_LOCK_KEY,locked?'1':'0')}catch(e){}if(locked&&(mode==='wall1'||mode==='wall2'))setMode('source')}
 try{$('wallLock').checked=localStorage.getItem(WALL_LOCK_KEY)==='1'}catch(e){}$('wallLock').onchange=applyWallLock;applyWallLock();
-const DEVICE_WALL_PRESETS={iphone16:{label:'iPhone 16',bounds:{x1:0.0435,y1:0.1912,x2:0.9562,y2:0.6715}},iphoneSE2:{label:'iPhone SE2',bounds:{x1:0.0413,y1:0.1253,x2:0.9606,y2:0.7080}}};
-function refreshDevicePresetButtons(){for(const [key,id] of [['iphone16','presetIPhone16'],['iphoneSE2','presetIPhoneSE2']]){const preset=DEVICE_WALL_PRESETS[key].bounds;const same=['x1','y1','x2','y2'].every(k=>Math.abs(bounds[k]-preset[k])<0.000001);$(id).classList.toggle('active',same);$(id).setAttribute('aria-pressed',same?'true':'false')}}
-function applyDevicePreset(key){const preset=DEVICE_WALL_PRESETS[key];bounds={...preset.bounds};saveBounds();$('wallLock').checked=true;applyWallLock();refreshWallCoords();refreshDevicePresetButtons();draw();status(preset.label+' の壁座標を保存して固定しました。')} 
+// 機種ごとの壁位置と初期拡大倍率。iPadの値は初回に手動で登録する。
+const DEVICE_KEY='reflection-selected-device-v2';
+const DEVICE_SETTINGS_KEY='reflection-device-settings-v2';
+const DEVICE_WALL_PRESETS={
+ iphone16:{label:'iPhone 16',bounds:{x1:0.0435,y1:0.1912,x2:0.9562,y2:0.6715}},
+ iphoneSE2:{label:'iPhone SE2',bounds:{x1:0.0413,y1:0.1253,x2:0.9606,y2:0.7080}},
+ ipad:{label:'iPad',bounds:null}
+};
+const DEVICE_BUTTONS={iphone16:'presetIPhone16',iphoneSE2:'presetIPhoneSE2',ipad:'presetIPad'};
+let selectedDevice=null;
+let customDeviceSettings={};
+try{
+ const parsed=JSON.parse(localStorage.getItem(DEVICE_SETTINGS_KEY));
+ if(parsed&&typeof parsed==='object')customDeviceSettings=parsed;
+ const last=localStorage.getItem(DEVICE_KEY);
+ if(last in DEVICE_WALL_PRESETS)selectedDevice=last;
+}catch(e){}
+function getSelectedDeviceKey(){return selectedDevice}
+function validDeviceBounds(v){return v&&['x1','y1','x2','y2'].every(k=>Number.isFinite(v[k])&&v[k]>=0&&v[k]<=1)&&v.x1<v.x2&&v.y1<v.y2}
+function getDeviceSettings(key){
+ const item=customDeviceSettings[key];
+ const fallback=DEVICE_WALL_PRESETS[key];
+ return {bounds:validDeviceBounds(item?.bounds)?item.bounds:fallback?.bounds||null,
+ zoom:Number.isFinite(item?.zoom)&&item.zoom>=10&&item.zoom<=200?item.zoom:null};
+}
+function getDeviceZoom(key){return getDeviceSettings(key).zoom}
+function refreshDevicePresetButtons(){
+ for(const [key,id] of Object.entries(DEVICE_BUTTONS)){
+  const on=selectedDevice===key;
+  $(id).classList.toggle('active',on);
+  $(id).setAttribute('aria-pressed',on?'true':'false');
+ }
+ $('presetIPad').textContent=getDeviceSettings('ipad').bounds?'iPad':'iPad（未設定）';
+}
+function applyDevicePreset(key){
+ selectedDevice=key;
+ try{localStorage.setItem(DEVICE_KEY,key)}catch(e){}
+ const preset=getDeviceSettings(key);
+ if(preset.bounds){bounds={...preset.bounds};saveBounds();$('wallLock').checked=true;applyWallLock()}
+ else{$('wallLock').checked=false;applyWallLock()}
+ if(img){
+  if(key==='ipad')focusRightGame(preset.zoom);
+  else if(preset.zoom!==null){setZoom(preset.zoom);requestAnimationFrame(()=>centerView(wallCenter()))}
+ }
+ refreshWallCoords();refreshDevicePresetButtons();draw();
+ status(preset.bounds?DEVICE_WALL_PRESETS[key].label+' の壁座標を適用しました。'+(preset.zoom?'倍率 '+preset.zoom+'%。':''):'iPadは未登録です。壁座標と倍率を調整後、「選択中の機種に現在の座標・倍率を保存」を押してください。');
+}
 $('presetIPhone16').onclick=()=>applyDevicePreset('iphone16');
 $('presetIPhoneSE2').onclick=()=>applyDevicePreset('iphoneSE2');
+$('presetIPad').onclick=()=>applyDevicePreset('ipad');
+$('saveDeviceSettings').onclick=()=>{
+ if(!selectedDevice){status('最初にiPhone 16・SE2・iPadの機種ボタンを選択してください。');return}
+ const values=['wallX1','wallY1','wallX2','wallY2'].map(id=>Number($(id).value));
+ const [x1,y1,x2,y2]=values.map(v=>v/100);
+ const proposed={x1,y1,x2,y2};
+ if(!validDeviceBounds(proposed)){status('左上・右下の座標を0～100%の範囲で正しく入力してください。');return}
+ const z=Math.round(zoom*100);
+ customDeviceSettings[selectedDevice]={bounds:proposed,zoom:z};
+ try{localStorage.setItem(DEVICE_SETTINGS_KEY,JSON.stringify(customDeviceSettings))}catch(e){status('端末設定の保存に失敗しました。');return}
+ bounds={...proposed};saveBounds();$('wallLock').checked=true;applyWallLock();
+ refreshWallCoords();refreshDevicePresetButtons();draw();
+ status(DEVICE_WALL_PRESETS[selectedDevice].label+' の壁座標と倍率 '+z+'%を保存しました。');
+};
 refreshDevicePresetButtons();
+if(selectedDevice){const initial=getDeviceSettings(selectedDevice);if(initial.bounds){bounds={...initial.bounds};saveBounds();refreshWallCoords();}}
 $('saveWallCoords').onclick=()=>{if($('wallLock').checked)return;const vals=['wallX1','wallY1','wallX2','wallY2'].map(id=>Number($(id).value));if(vals.some(v=>!Number.isFinite(v)||v<0||v>100)){status('座標は0〜100%で指定してください。');return}const [x1,y1,x2,y2]=vals.map(v=>v/100);if(x1>=x2||y1>=y2){status('左上のX・Yは右下より小さくしてください。');return}bounds={x1,y1,x2,y2};saveBounds();refreshWallCoords();draw();status('壁の座標を保存しました。固定する場合はチェックを入れてください。')};
 $('copyWallCoords').onclick=async()=>{const t=`左上: X=${(bounds.x1*100).toFixed(2)}%, Y=${(bounds.y1*100).toFixed(2)}%\n右下: X=${(bounds.x2*100).toFixed(2)}%, Y=${(bounds.y2*100).toFixed(2)}%` ;try{await navigator.clipboard.writeText(t);status('壁の座標をコピーしました。')}catch(e){status(t)}};
 refreshWallCoords();
