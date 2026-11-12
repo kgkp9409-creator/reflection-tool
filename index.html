@@ -233,7 +233,10 @@ c.addEventListener('pointerdown',e=>{
  const sourceHitRadius=Math.max(26,Math.min(46,c.width*zoom/110+12),Math.max(9,c.width/110)*zoom*sourceSizePercent/100+12);
  const sourceDistance=Math.hypot((source.x-p.x)*c.width*zoom,(source.y-p.y)*c.height*zoom);
  if(sourceDistance<=sourceHitRadius){drag='source';sourceFingerOffset=e.pointerType==='touch';c.setPointerCapture(e.pointerId);if(sourceFingerOffset){movePoint(sourceOffsetPoint(e))}else{movePoint(p)}return}
- if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')){obstacles.push(makeObstacle(p));obstacleHover=p;saveObstacles();refreshObstacleCount();draw();status('内部反射線を追加しました（'+obstacles.length+'本）。');return}
+ if(mode==='obstacle-horizontal'||mode==='obstacle-vertical'){
+   // 指を離すまでは仮置き（白い破線）のみ。二本指操作時はキャンセルする。
+   drag='obstacle';obstacleHover=p;c.setPointerCapture(e.pointerId);draw();return;
+ }
  drag='aim';aimStart=p;aimPointer=p;c.setPointerCapture(e.pointerId);draw();return;
 });
 function sourceOffsetPoint(e){const r=c.getBoundingClientRect();return {x:clamp((e.clientX-r.left-SOURCE_FINGER_OFFSET_PX)/r.width,0,1),y:clamp((e.clientY-r.top-SOURCE_FINGER_OFFSET_PX)/r.height,0,1)}}
@@ -244,17 +247,31 @@ c.addEventListener('pointermove',e=>{
    if(gesture){if(fingers.size>=2)moveGesture();return}
    if(suppressTouch)return;
  }
- if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&!drag){obstacleHover=point(e);draw()}else if(drag==='aim')updateAim(point(e));else if(drag)movePoint(drag==='source'&&sourceFingerOffset?sourceOffsetPoint(e):point(e));
+ if(drag==='obstacle'){obstacleHover=point(e);draw()}
+ else if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&!drag){obstacleHover=point(e);draw()}
+ else if(drag==='aim')updateAim(point(e));else if(drag)movePoint(drag==='source'&&sourceFingerOffset?sourceOffsetPoint(e):point(e));
 });
-c.addEventListener('pointerleave',()=>{if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&!gesture){obstacleHover=null;draw()}});
-function endDrag(){if(drag==='wall1'||drag==='wall2')saveBounds();drag=null;sourceFingerOffset=false;aimPointer=null;aimStart=null;draw()}
+c.addEventListener('pointerleave',()=>{if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&!gesture&&!drag){obstacleHover=null;draw()}});
+function endDrag(commitObstacle=false){
+ if(drag==='obstacle'){
+  if(commitObstacle&&obstacleHover){
+   obstacles.push(makeObstacle(obstacleHover));saveObstacles();refreshObstacleCount();
+   status('内部反射線を配置しました（'+obstacles.length+'本）。');
+  }
+  obstacleHover=null;
+ }
+ if(drag==='wall1'||drag==='wall2')saveBounds();
+ drag=null;sourceFingerOffset=false;aimPointer=null;aimStart=null;draw();
+}
 function endPointer(e){if(e.pointerType==='touch'){
   const wasGesture=!!gesture;fingers.delete(e.pointerId);
   if(wasGesture){gesture=null;drag=null;sourceFingerOffset=false;aimPointer=null;aimStart=null;draw();if(fingers.size===0){suppressTouch=false;preTouch=null}return}
   if(suppressTouch){if(fingers.size===0){suppressTouch=false;preTouch=null}return}
   preTouch=null;
  }
- endDrag();
+ // 最終的な指の位置を反映してから確定する。
+ if(drag==='obstacle'&&e.type==='pointerup')obstacleHover=point(e);
+ endDrag(e.type==='pointerup');
 }
 c.addEventListener('pointerup',endPointer);c.addEventListener('pointercancel',endPointer);
 function refreshWallCoords(){if(typeof refreshDevicePresetButtons==='function')refreshDevicePresetButtons();for(const [id,key] of [['wallX1','x1'],['wallY1','y1'],['wallX2','x2'],['wallY2','y2']]){if(document.activeElement!==$(id))$(id).value=(bounds[key]*100).toFixed(2)}if(img){$('wallPx1').textContent=`画像内: (${Math.round(bounds.x1*c.width)}, ${Math.round(bounds.y1*c.height)}) px / ${c.width}×${c.height}`;$('wallPx2').textContent=`画像内: (${Math.round(bounds.x2*c.width)}, ${Math.round(bounds.y2*c.height)}) px / ${c.width}×${c.height}`}else{$('wallPx1').textContent='画像を読み込むとpx座標を表示';$('wallPx2').textContent='画像を読み込むとpx座標を表示'}}
