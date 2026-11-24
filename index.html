@@ -140,7 +140,7 @@ button, input[type="button"], input[type="submit"], select {
 <div class="inline-label"><label for="circleShallowAngle">円の浅い角度での反転反射</label><strong id="circleShallowAngleLabel">10°</strong></div>
 <input type="range" id="circleShallowAngle" min="0" max="45" step="1" value="10" aria-label="円への浅い入射角の閾値"/>
 <div class="hint">左右側ではほぼ縦方向、上下側ではほぼ横方向から接触したときに進行方向を180°反転します。0°で例外処理を無効化します。</div>
-<div class="hint">PC：図形の上でホイール＝円直径／長方形の横幅。Shift＋ホイール＝縦幅、Ctrl＋ホイール＝縦横同時、Alt＋ホイール＝0.1%刻み。</div><div class="shape-delete"><button type="button" id="shapeDelete">選択中を削除</button><button type="button" id="shapeClear">障害物を全削除</button></div>
+<div class="hint">PC：障害物をクリックで選択後、Ctrl+Cでコピー、Ctrl+Vで同じ大きさのまま複製（少しずらして配置）。</div><div class="hint">PC：図形の上でホイール＝円直径／長方形の横幅。Shift＋ホイール＝縦幅、Ctrl＋ホイール＝縦横同時、Alt＋ホイール＝0.1%刻み。</div><div class="shape-delete"><button type="button" id="shapeDelete">選択中を削除</button><button type="button" id="shapeClear">障害物を全削除</button></div>
 <div class="hint">大きさはフィールドの幅・高さに対する割合。選択・移動モードで図形をドラッグできます。配置した壁の外にはみ出して配置できます。障害物に当たった軌道は接触面で反射します。<br>※スクリーンショットに写っている障害物は自動認識されません。円または長方形を重ねて配置してください。</div>
 </div>
 <div class="group" id="layoutPresetGroup">
@@ -218,6 +218,7 @@ window.addEventListener('resize',()=>{
 for(const eventName of ['contextmenu','dragstart','selectstart']){viewer.addEventListener(eventName,e=>e.preventDefault())}
 let img=null,mode='source',zoom=0.55,drag=null,aimPointer=null,aimStart=null,obstacleStart=null,obstacleHover=null;let sourceFingerOffset=false;const SOURCE_FINGER_OFFSET_PX=80/3*1.3;let sourceSizePercent=100,rayWidthPercent=100,ballDiameterPercent=15;const BALL_VISIBLE_KEY='reflection-ball-visible-v1';try{$('showBallShape').checked=localStorage.getItem(BALL_VISIBLE_KEY)==='1'}catch(e){}$('showBallShape').addEventListener('change',()=>{try{localStorage.setItem(BALL_VISIBLE_KEY,$('showBallShape').checked?'1':'0')}catch(e){}draw()});let obstacles=[];let bounds={x1:.05,y1:.12,x2:.95,y2:.88},source={x:.5,y:.65};const SHAPES_KEY='reflection-solid-shapes-v1';
 let shapes=[],selectedShape=-1,shapeDraft=null,shapePointer=null,shapeLast=null;
+let copiedShape=null; // Ctrl+C / Ctrl+V 用のツール内コピー
 const SHALLOW_ANGLE_KEY='reflection-circle-shallow-angle-v1';
 let shallowAngle=10;
 try{const a=Number(localStorage.getItem(SHALLOW_ANGLE_KEY));if(Number.isFinite(a)&&a>=0&&a<=45&&localStorage.getItem(SHALLOW_ANGLE_KEY)!==null)shallowAngle=a;}catch(e){}
@@ -902,6 +903,34 @@ $('layoutPresetImportFile').addEventListener('change',async e=>{
 });
 refreshLayoutPresetList();
 
+// PC: 選択した障害物を Ctrl+C でコピーし、Ctrl+V で同寸法のまま複製。
+// ブラウザのテキスト入力欄では本来のコピー/ペーストを優先する。
+document.addEventListener('keydown',e=>{
+ if(!(e.ctrlKey||e.metaKey)||e.altKey||e.repeat)return;
+ const target=e.target;
+ if(target&&(target.closest('input,textarea,select,[contenteditable="true"]')||target.isContentEditable))return;
+ const key=e.key.toLowerCase();
+ if(key==='c'){
+  if(selectedShape<0||!shapes[selectedShape])return;
+  e.preventDefault();
+  const sh=shapes[selectedShape];
+  copiedShape={type:sh.type,w:sh.w,h:sh.h,x:sh.x,y:sh.y};
+  status((sh.type==='circle'?'円':'長方形')+'の障害物をコピーしました。Ctrl+Vで複製できます。');
+ }else if(key==='v'){
+  if(!copiedShape)return;
+  e.preventDefault();
+  if(shapes.length>=100){status('障害物は最大100個までです。');return;}
+  const offset=shapeLimits();
+  const clone={...copiedShape,x:copiedShape.x+offset.fw*0.035,y:copiedShape.y+offset.fh*0.035};
+  constrainShape(clone);
+  shapes.push(clone);
+  selectedShape=shapes.length-1;
+  // 次回の貼り付けでは、新しい複製からさらにずらす。
+  copiedShape={...clone};
+  saveShapes();setMode('shape-select');updateShapeControls();draw();
+  status('同じ大きさの障害物を複製しました。黄色の枠をドラッグして移動できます。');
+ }
+});
 $('shapeWidth').oninput=()=>{const sh=shapes[selectedShape]||shapeDraft;if(sh){sh.w=Number($('shapeWidth').value)/100;constrainShape(sh);if(selectedShape>=0)saveShapes();}updateShapeControls();draw()};
 $('shapeHeight').oninput=()=>{const sh=shapes[selectedShape]||shapeDraft;if(sh&&sh.type==='rect'){sh.h=Number($('shapeHeight').value)/100;constrainShape(sh);if(selectedShape>=0)saveShapes();}updateShapeControls();draw()};
 $('shapeDelete').onclick=()=>{if(selectedShape>=0){shapes.splice(selectedShape,1);selectedShape=-1;saveShapes();updateShapeControls();draw()}};
