@@ -140,7 +140,7 @@ button, input[type="button"], input[type="submit"], select {
 <div class="inline-label"><label for="circleShallowAngle">円の浅い角度での反転反射</label><strong id="circleShallowAngleLabel">10°</strong></div>
 <input type="range" id="circleShallowAngle" min="0" max="45" step="1" value="10" aria-label="円への浅い入射角の閾値"/>
 <div class="hint">左右側ではほぼ縦方向、上下側ではほぼ横方向から接触したときに進行方向を180°反転します。0°で例外処理を無効化します。</div>
-<div class="shape-delete"><button type="button" id="shapeDelete">選択中を削除</button><button type="button" id="shapeClear">障害物を全削除</button></div>
+<div class="hint">PC：図形の上でホイール＝円直径／長方形の横幅。Shift＋ホイール＝縦幅、Ctrl＋ホイール＝縦横同時、Alt＋ホイール＝0.1%刻み。</div><div class="shape-delete"><button type="button" id="shapeDelete">選択中を削除</button><button type="button" id="shapeClear">障害物を全削除</button></div>
 <div class="hint">大きさはフィールドの幅・高さに対する割合。選択・移動モードで図形をドラッグできます。配置した壁の外にはみ出して配置できます。障害物に当たった軌道は接触面で反射します。<br>※スクリーンショットに写っている障害物は自動認識されません。円または長方形を重ねて配置してください。</div>
 </div>
 <div class="group" id="layoutPresetGroup">
@@ -608,6 +608,30 @@ c.addEventListener('pointermove',e=>{
  else if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&!drag){obstacleHover=point(e);draw()}
  else if(drag==='aim')updateAim(point(e));else if(drag)movePoint(drag==='source'&&sourceFingerOffset?sourceOffsetPoint(e):point(e));
 });
+// PC: 円・長方形の上でホイールを回すとサイズを調整する。
+// 通常: 円は直径・長方形は横幅、Shift+ホイール: 長方形の縦幅。
+// Ctrl+ホイール: 長方形の縦横を同時に調整。
+c.addEventListener('wheel', e=>{
+ if(!img || e.pointerType==='touch')return;
+ const idx=shapeAt(point(e));
+ if(idx<0)return; // 障害物の上以外では通常のスクロールを維持
+ e.preventDefault();
+ if(drag||gesture)return;
+ const sh=shapes[idx];
+ const step=e.deltaY<0?1:-1;
+ const amount=(e.altKey?0.1:1)*step/100;
+ const resize=(key)=>{sh[key]=Math.max(.02,Math.min(1,Math.round((sh[key]+amount)*1000)/1000));};
+ if(sh.type==='circle')resize('w');
+ else if(e.ctrlKey||e.metaKey){resize('w');resize('h');}
+ else if(e.shiftKey)resize('h');
+ else resize('w');
+ selectedShape=idx;
+ saveShapes();
+ updateShapeControls();
+ draw();
+ status((sh.type==='circle'?'円の直径：'+(sh.w*100).toFixed(1)+'%':
+ '長方形の横幅：'+(sh.w*100).toFixed(1)+'% / 縦幅：'+(sh.h*100).toFixed(1)+'%')+'（ホイールで変更）');
+},{passive:false});
 c.addEventListener('pointerleave',()=>{if((mode==='obstacle-horizontal'||mode==='obstacle-vertical')&&!gesture&&!drag){obstacleHover=null;draw()}});
 function endDrag(commitObstacle=false){
  if(drag==='shape-create'){
