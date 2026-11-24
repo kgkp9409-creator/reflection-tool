@@ -104,7 +104,20 @@ button, input[type="button"], input[type="submit"], select {
  .sidebar .coord-nudge input {font-size:12px;}
  .sidebar .shape-controls button {white-space:normal;}
 }
-</style></head><body><main class="layout"><section class="viewer" id="viewer"><canvas height="700" id="canvas" width="500"></canvas></section><aside class="sidebar"><div class="quick-actions"><button class="aim-top-button" data-mode="aim" id="aim">角度をドラッグ</button><button id="paste">クリップボード</button></div><div class="group compact-control-row"><div class="angle-compact"><span class="value" id="angleLabel">45.00°</span><div class="compact-buttons"><button data-step="-0.05">−0.05°</button><button data-step="0.05">＋0.05°</button></div></div><div class="bounce-compact"><div class="compact-bounce-label">反射 <input aria-label="反射回数" id="bounces" max="200" min="0" step="1" type="number" value="8"/></div><div class="compact-buttons"><button aria-label="反射回数を1減らす" id="bounceMinus">−1</button><button aria-label="反射回数を1増やす" id="bouncePlus">＋1</button></div></div></div><div class="angle-presets" aria-label="保存角度"><button type="button" data-angle-preset="150.30" title="150.30°に設定">V <span>150.30°</span></button><button type="button" data-angle-preset="159.20" title="159.20°に設定">N <span>159.20°</span></button></div><div class="group"><label>スクリーンショット</label><input accept="image/*" id="file" type="file"/></div><div class="group"><div class="row obstacle-mode-row"><button data-mode="obstacle-horizontal" id="obstacleHorizontal">水平線を追加</button><button data-mode="obstacle-vertical" id="obstacleVertical">垂直線を追加</button></div><div class="inline-label"><label for="obstacleLength">線の長さ（壁の幅・高さに対する割合）</label><strong id="obstacleLengthLabel">20%</strong></div><input id="obstacleLength" max="100" min="1" step="1" type="range" value="20"/><div class="row"><button id="obstacleLengthMinus">−1%</button><input id="obstacleLengthInput" max="100" min="1" step="1" type="number" value="20"/><span>%</span><button id="obstacleLengthPlus">+1%</button></div><div class="row obstacle-delete-row"><button id="undoObstacle">最後の線を削除</button><button id="clearObstacles">内部反射線を全削除</button></div><div class="hint" id="obstacleCount">内部反射線：0本</div></div><div class="group" id="shapeGroup">
+
+/* PC: ドラッグ可能な仕切りで画像表示と操作パネルの幅を変更 */
+.panel-divider{display:none}
+@media (min-width:1200px) and (pointer:fine){
+ .layout{grid-template-columns:minmax(0,1fr) 12px minmax(0,var(--reflection-panel-width,620px));gap:6px}
+ .layout>.viewer,.layout>.sidebar{min-width:0}
+ .panel-divider{display:flex;align-items:center;justify-content:center;position:relative;min-width:12px;cursor:col-resize;touch-action:none;user-select:none;border-radius:8px;background:transparent;outline:none}
+ .panel-divider::before{content:"";width:5px;height:66px;border-radius:8px;background:#5e7697;transition:background .15s}
+ .panel-divider:hover::before,.panel-divider:focus-visible::before,.panel-divider.is-dragging::before{background:#fbbf24}
+ .panel-divider::after{content:"";position:absolute;inset:0 -4px}
+ body.panel-resizing{cursor:col-resize!important;user-select:none!important}
+ body.panel-resizing *{cursor:col-resize!important}
+}
+</style></head><body><main class="layout"><section class="viewer" id="viewer"><canvas height="700" id="canvas" width="500"></canvas></section><div id="panelDivider" class="panel-divider" role="separator" aria-label="画像表示と操作パネルの幅を変更" aria-orientation="vertical" tabindex="0" title="左右にドラッグして幅を変更（ダブルクリックで初期値に戻す）"></div><aside class="sidebar"><div class="quick-actions"><button class="aim-top-button" data-mode="aim" id="aim">角度をドラッグ</button><button id="paste">クリップボード</button></div><div class="group compact-control-row"><div class="angle-compact"><span class="value" id="angleLabel">45.00°</span><div class="compact-buttons"><button data-step="-0.05">−0.05°</button><button data-step="0.05">＋0.05°</button></div></div><div class="bounce-compact"><div class="compact-bounce-label">反射 <input aria-label="反射回数" id="bounces" max="200" min="0" step="1" type="number" value="8"/></div><div class="compact-buttons"><button aria-label="反射回数を1減らす" id="bounceMinus">−1</button><button aria-label="反射回数を1増やす" id="bouncePlus">＋1</button></div></div></div><div class="angle-presets" aria-label="保存角度"><button type="button" data-angle-preset="150.30" title="150.30°に設定">V <span>150.30°</span></button><button type="button" data-angle-preset="159.20" title="159.20°に設定">N <span>159.20°</span></button></div><div class="group"><label>スクリーンショット</label><input accept="image/*" id="file" type="file"/></div><div class="group"><div class="row obstacle-mode-row"><button data-mode="obstacle-horizontal" id="obstacleHorizontal">水平線を追加</button><button data-mode="obstacle-vertical" id="obstacleVertical">垂直線を追加</button></div><div class="inline-label"><label for="obstacleLength">線の長さ（壁の幅・高さに対する割合）</label><strong id="obstacleLengthLabel">20%</strong></div><input id="obstacleLength" max="100" min="1" step="1" type="range" value="20"/><div class="row"><button id="obstacleLengthMinus">−1%</button><input id="obstacleLengthInput" max="100" min="1" step="1" type="number" value="20"/><span>%</span><button id="obstacleLengthPlus">+1%</button></div><div class="row obstacle-delete-row"><button id="undoObstacle">最後の線を削除</button><button id="clearObstacles">内部反射線を全削除</button></div><div class="hint" id="obstacleCount">内部反射線：0本</div></div><div class="group" id="shapeGroup">
 <label>障害物（円・長方形）</label>
 <div class="shape-controls">
 <button type="button" data-mode="shape-select" id="shapeSelect">選択・移動</button>
@@ -123,6 +136,57 @@ button, input[type="button"], input[type="submit"], select {
 <div class="hint">大きさはフィールドの幅・高さに対する割合。選択・移動モードで図形をドラッグできます。配置した壁の外にはみ出して配置できます。障害物に当たった軌道は接触面で反射します。<br>※スクリーンショットに写っている障害物は自動認識されません。円または長方形を重ねて配置してください。</div>
 </div><div aria-hidden="true" style="display:none"><button id="reset" type="button"></button><input checked="" id="showReverse" type="checkbox"/><input checked="" id="showBounds" type="checkbox"/></div><div class="group"><div class="row device-preset-row"><div class="device-presets"><button class="primary" id="presetIPhone16" type="button">iPhone 16</button><button class="primary" id="presetIPhoneSE2" type="button">iPhone SE2</button><button class="primary" id="presetIPad" type="button">iPad（未設定）</button></div></div><div class="row" style="margin:4px 0 10px"><button id="saveDeviceSettings" type="button">選択中の機種に現在の設定を保存</button></div><div class="source-size-controls"><span>発射地点の中心点</span><div class="source-size-step"><button id="sourceSizeMinus" type="button" aria-label="中心点のサイズを5%小さく">−</button><strong id="sourceSizeLabel">100%</strong><button id="sourceSizePlus" type="button" aria-label="中心点のサイズを5%大きく">＋</button></div></div><div class="source-size-controls ray-width-controls"><span>反射線の太さ</span><div class="source-size-step"><button id="rayWidthMinus" type="button" aria-label="反射線を5%細く">−</button><strong id="rayWidthLabel">100%</strong><button id="rayWidthPlus" type="button" aria-label="反射線を5%太く">＋</button></div></div><div class="ball-diameter-controls"><label class="checkbox" style="margin:0"><input id="showBallShape" type="checkbox">正円を表示</label><strong>直径15.0%</strong></div><label>壁の座標（画像全体に対する割合）</label><div class="coord-grid"><div class="coord-card"><strong>左上</strong><label>X（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallX1" data-dir="-1" aria-label="wallX1を0.01%減らす">−</button><input id="wallX1" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallX1" data-dir="1" aria-label="wallX1を0.01%増やす">＋</button></span></label><label>Y（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallY1" data-dir="-1" aria-label="wallY1を0.01%減らす">−</button><input id="wallY1" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallY1" data-dir="1" aria-label="wallY1を0.01%増やす">＋</button></span></label><small id="wallPx1">画像読み込み後にpx座標を表示</small></div><div class="coord-card"><strong>右下</strong><label>X（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallX2" data-dir="-1" aria-label="wallX2を0.01%減らす">−</button><input id="wallX2" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallX2" data-dir="1" aria-label="wallX2を0.01%増やす">＋</button></span></label><label>Y（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallY2" data-dir="-1" aria-label="wallY2を0.01%減らす">−</button><input id="wallY2" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallY2" data-dir="1" aria-label="wallY2を0.01%増やす">＋</button></span></label><small id="wallPx2">画像読み込み後にpx座標を表示</small></div></div><div class="row"><button id="saveWallCoords">壁の座標を保存</button><button id="copyWallCoords">座標をコピー</button></div><label class="checkbox"><input id="wallLock" type="checkbox"/>壁の座標を固定（画像上の誤操作を防止）</label><div class="hint">%座標は画像の大きさに依存しません。同じ画面構成のスクショで再利用できます。画面比率やゲームの表示領域が違う端末では座標を調整してください。</div></div><div class="group"><label>画像の表示</label><div class="row"><button id="saveInitialCenter">現在の表示中心を初期位置に保存</button><button id="centerOnWall">壁の中心に移動</button><button id="focusRightGame">右側ゲームへ移動</button></div><div class="hint">横長のiPadスクショは、右側のゲームウインドウを自動で拡大表示します。ウインドウの位置・サイズを固定して使用してください。</div><div class="inline-label"><label for="zoomRange">表示倍率</label><strong id="zoomLabel">55%</strong></div><input id="zoomRange" max="200" min="10" step="1" type="range" value="55"/><div class="row"><button id="zoomMinus">−1%</button><input id="zoomInput" max="200" min="10" step="1" type="number" value="55"/><span>%</span><button id="zoomPlus">+1%</button><button id="zoomFit">画面に合わせる</button><button id="zoomReset">55%に戻す</button></div><label class="checkbox"><input id="zoomLock" type="checkbox"/>表示倍率を固定する</label><div class="hint">画像の縦横比は維持されます。2本指でピンチ拡大・縮小、2本指で画像を移動できます。倍率固定中は移動のみ可能です。</div></div><div class="group"><button class="primary" id="save">軌道付き画像を保存</button></div><div class="status" id="status">画像を読み込んでください。</div></aside></main><script>
 (()=>{'use strict';const $=id=>document.getElementById(id),c=$('canvas'),ctx=c.getContext('2d'),viewer=$('viewer');
+
+// PC用レイアウト仕切り。スマホ・iPadでは表示しない。
+const panelDivider=$('panelDivider'),layout=document.querySelector('.layout'),sidebar=document.querySelector('.sidebar');
+const PANEL_WIDTH_KEY='reflection-pc-panel-width-v1';
+const isPanelResizable=()=>window.matchMedia('(min-width:1200px) and (pointer:fine)').matches;
+const panelWidthLimits=()=>{
+ const available=layout.clientWidth-24;
+ return {min:350,max:Math.max(350,available-340-12-12)};
+};
+function applyPanelWidth(value,save=false){
+ const bounds=panelWidthLimits();
+ const width=Math.round(Math.max(bounds.min,Math.min(bounds.max,Number(value)||620)));
+ layout.style.setProperty('--reflection-panel-width',width+'px');
+ panelDivider.setAttribute('aria-valuenow',String(width));
+ panelDivider.setAttribute('aria-valuemin',String(bounds.min));
+ panelDivider.setAttribute('aria-valuemax',String(bounds.max));
+ if(save){try{localStorage.setItem(PANEL_WIDTH_KEY,String(width))}catch(e){}}
+}
+try{const stored=Number(localStorage.getItem(PANEL_WIDTH_KEY));if(stored>0)applyPanelWidth(stored)}catch(e){}
+let panelDrag=null;
+panelDivider.addEventListener('pointerdown',e=>{
+ if(!isPanelResizable()||e.button!==0)return;
+ e.preventDefault();
+ panelDrag={pointerId:e.pointerId,originX:e.clientX,width:sidebar.getBoundingClientRect().width};
+ panelDivider.setPointerCapture(e.pointerId);
+ panelDivider.classList.add('is-dragging');document.body.classList.add('panel-resizing');
+});
+panelDivider.addEventListener('pointermove',e=>{
+ if(!panelDrag||e.pointerId!==panelDrag.pointerId)return;
+ applyPanelWidth(panelDrag.width-(e.clientX-panelDrag.originX));
+});
+function endPanelDrag(e){
+ if(!panelDrag||e.pointerId!==panelDrag.pointerId)return;
+ if(e.type==='pointerup')applyPanelWidth(sidebar.getBoundingClientRect().width,true);
+ panelDrag=null;panelDivider.classList.remove('is-dragging');document.body.classList.remove('panel-resizing');
+}
+panelDivider.addEventListener('pointerup',endPanelDrag);
+panelDivider.addEventListener('pointercancel',endPanelDrag);
+panelDivider.addEventListener('lostpointercapture',endPanelDrag);
+panelDivider.addEventListener('dblclick',()=>applyPanelWidth(620,true));
+panelDivider.addEventListener('keydown',e=>{
+ if(!isPanelResizable())return;
+ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+  e.preventDefault();applyPanelWidth(sidebar.getBoundingClientRect().width+(e.key==='ArrowLeft'?20:-20),true);
+ }else if(e.key==='Home'){e.preventDefault();applyPanelWidth(620,true)}
+});
+window.addEventListener('resize',()=>{
+ if(!isPanelResizable())return;
+ const target=parseFloat(layout.style.getPropertyValue('--reflection-panel-width'))||620;
+ applyPanelWidth(target);
+});
 // Prevent Safari image/text long-press menus without disabling app gestures or clipboard controls.
 for(const eventName of ['contextmenu','dragstart','selectstart']){viewer.addEventListener(eventName,e=>e.preventDefault())}
 let img=null,mode='source',zoom=0.55,drag=null,aimPointer=null,aimStart=null,obstacleStart=null,obstacleHover=null;let sourceFingerOffset=false;const SOURCE_FINGER_OFFSET_PX=80/3*1.3;let sourceSizePercent=100,rayWidthPercent=100,ballDiameterPercent=15;const BALL_VISIBLE_KEY='reflection-ball-visible-v1';try{$('showBallShape').checked=localStorage.getItem(BALL_VISIBLE_KEY)==='1'}catch(e){}$('showBallShape').addEventListener('change',()=>{try{localStorage.setItem(BALL_VISIBLE_KEY,$('showBallShape').checked?'1':'0')}catch(e){}draw()});let obstacles=[];let bounds={x1:.05,y1:.12,x2:.95,y2:.88},source={x:.5,y:.65};const SHAPES_KEY='reflection-solid-shapes-v1';
