@@ -117,6 +117,14 @@ button, input[type="button"], input[type="submit"], select {
  body.panel-resizing{cursor:col-resize!important;user-select:none!important}
  body.panel-resizing *{cursor:col-resize!important}
 }
+
+.layout-presets{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin:8px 0}
+.layout-presets input,.layout-presets select{min-width:0;width:100%;background:#111c2d;border:1px solid #64748b;color:#fff;border-radius:6px;padding:9px}
+.layout-presets select{grid-column:1/-1}
+.layout-presets button{min-width:0}
+.layout-preset-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:7px 0}
+.layout-preset-actions button{min-width:0;font-size:12px;padding:8px 3px}
+@media(max-width:450px){.layout-preset-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main class="layout"><section class="viewer" id="viewer"><canvas height="700" id="canvas" width="500"></canvas></section><div id="panelDivider" class="panel-divider" role="separator" aria-label="画像表示と操作パネルの幅を変更" aria-orientation="vertical" tabindex="0" title="左右にドラッグして幅を変更（ダブルクリックで初期値に戻す）"></div><aside class="sidebar"><div class="quick-actions"><button class="aim-top-button" data-mode="aim" id="aim">角度をドラッグ</button><button id="paste">クリップボード</button></div><div class="group compact-control-row"><div class="angle-compact"><span class="value" id="angleLabel">45.00°</span><div class="compact-buttons"><button data-step="-0.05">−0.05°</button><button data-step="0.05">＋0.05°</button></div></div><div class="bounce-compact"><div class="compact-bounce-label">反射 <input aria-label="反射回数" id="bounces" max="200" min="0" step="1" type="number" value="8"/></div><div class="compact-buttons"><button aria-label="反射回数を1減らす" id="bounceMinus">−1</button><button aria-label="反射回数を1増やす" id="bouncePlus">＋1</button></div></div></div><div class="angle-presets" aria-label="保存角度"><button type="button" data-angle-preset="150.30" title="150.30°に設定">V <span>150.30°</span></button><button type="button" data-angle-preset="159.20" title="159.20°に設定">N <span>159.20°</span></button></div><div class="group"><label>スクリーンショット</label><input accept="image/*" id="file" type="file"/></div><div class="group"><div class="row obstacle-mode-row"><button data-mode="obstacle-horizontal" id="obstacleHorizontal">水平線を追加</button><button data-mode="obstacle-vertical" id="obstacleVertical">垂直線を追加</button></div><div class="inline-label"><label for="obstacleLength">線の長さ（壁の幅・高さに対する割合）</label><strong id="obstacleLengthLabel">20%</strong></div><input id="obstacleLength" max="100" min="1" step="1" type="range" value="20"/><div class="row"><button id="obstacleLengthMinus">−1%</button><input id="obstacleLengthInput" max="100" min="1" step="1" type="number" value="20"/><span>%</span><button id="obstacleLengthPlus">+1%</button></div><div class="row obstacle-delete-row"><button id="undoObstacle">最後の線を削除</button><button id="clearObstacles">内部反射線を全削除</button></div><div class="hint" id="obstacleCount">内部反射線：0本</div></div><div class="group" id="shapeGroup">
 <label>障害物（円・長方形）</label>
 <div class="shape-controls">
@@ -134,7 +142,26 @@ button, input[type="button"], input[type="submit"], select {
 <div class="hint">左右側ではほぼ縦方向、上下側ではほぼ横方向から接触したときに進行方向を180°反転します。0°で例外処理を無効化します。</div>
 <div class="shape-delete"><button type="button" id="shapeDelete">選択中を削除</button><button type="button" id="shapeClear">障害物を全削除</button></div>
 <div class="hint">大きさはフィールドの幅・高さに対する割合。選択・移動モードで図形をドラッグできます。配置した壁の外にはみ出して配置できます。障害物に当たった軌道は接触面で反射します。<br>※スクリーンショットに写っている障害物は自動認識されません。円または長方形を重ねて配置してください。</div>
-</div><div aria-hidden="true" style="display:none"><button id="reset" type="button"></button><input checked="" id="showReverse" type="checkbox"/><input checked="" id="showBounds" type="checkbox"/></div><div class="group"><div class="row device-preset-row"><div class="device-presets"><button class="primary" id="presetIPhone16" type="button">iPhone 16</button><button class="primary" id="presetIPhoneSE2" type="button">iPhone SE2</button><button class="primary" id="presetIPad" type="button">iPad（未設定）</button></div></div><div class="row" style="margin:4px 0 10px"><button id="saveDeviceSettings" type="button">選択中の機種に現在の設定を保存</button></div><div class="source-size-controls"><span>発射地点の中心点</span><div class="source-size-step"><button id="sourceSizeMinus" type="button" aria-label="中心点のサイズを5%小さく">−</button><strong id="sourceSizeLabel">100%</strong><button id="sourceSizePlus" type="button" aria-label="中心点のサイズを5%大きく">＋</button></div></div><div class="source-size-controls ray-width-controls"><span>反射線の太さ</span><div class="source-size-step"><button id="rayWidthMinus" type="button" aria-label="反射線を5%細く">−</button><strong id="rayWidthLabel">100%</strong><button id="rayWidthPlus" type="button" aria-label="反射線を5%太く">＋</button></div></div><div class="ball-diameter-controls"><label class="checkbox" style="margin:0"><input id="showBallShape" type="checkbox">正円を表示</label><strong>直径15.0%</strong></div><label>壁の座標（画像全体に対する割合）</label><div class="coord-grid"><div class="coord-card"><strong>左上</strong><label>X（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallX1" data-dir="-1" aria-label="wallX1を0.01%減らす">−</button><input id="wallX1" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallX1" data-dir="1" aria-label="wallX1を0.01%増やす">＋</button></span></label><label>Y（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallY1" data-dir="-1" aria-label="wallY1を0.01%減らす">−</button><input id="wallY1" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallY1" data-dir="1" aria-label="wallY1を0.01%増やす">＋</button></span></label><small id="wallPx1">画像読み込み後にpx座標を表示</small></div><div class="coord-card"><strong>右下</strong><label>X（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallX2" data-dir="-1" aria-label="wallX2を0.01%減らす">−</button><input id="wallX2" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallX2" data-dir="1" aria-label="wallX2を0.01%増やす">＋</button></span></label><label>Y（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallY2" data-dir="-1" aria-label="wallY2を0.01%減らす">−</button><input id="wallY2" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallY2" data-dir="1" aria-label="wallY2を0.01%増やす">＋</button></span></label><small id="wallPx2">画像読み込み後にpx座標を表示</small></div></div><div class="row"><button id="saveWallCoords">壁の座標を保存</button><button id="copyWallCoords">座標をコピー</button></div><label class="checkbox"><input id="wallLock" type="checkbox"/>壁の座標を固定（画像上の誤操作を防止）</label><div class="hint">%座標は画像の大きさに依存しません。同じ画面構成のスクショで再利用できます。画面比率やゲームの表示領域が違う端末では座標を調整してください。</div></div><div class="group"><label>画像の表示</label><div class="row"><button id="saveInitialCenter">現在の表示中心を初期位置に保存</button><button id="centerOnWall">壁の中心に移動</button><button id="focusRightGame">右側ゲームへ移動</button></div><div class="hint">横長のiPadスクショは、右側のゲームウインドウを自動で拡大表示します。ウインドウの位置・サイズを固定して使用してください。</div><div class="inline-label"><label for="zoomRange">表示倍率</label><strong id="zoomLabel">55%</strong></div><input id="zoomRange" max="200" min="10" step="1" type="range" value="55"/><div class="row"><button id="zoomMinus">−1%</button><input id="zoomInput" max="200" min="10" step="1" type="number" value="55"/><span>%</span><button id="zoomPlus">+1%</button><button id="zoomFit">画面に合わせる</button><button id="zoomReset">55%に戻す</button></div><label class="checkbox"><input id="zoomLock" type="checkbox"/>表示倍率を固定する</label><div class="hint">画像の縦横比は維持されます。2本指でピンチ拡大・縮小、2本指で画像を移動できます。倍率固定中は移動のみ可能です。</div></div><div class="group"><button class="primary" id="save">軌道付き画像を保存</button></div><div class="status" id="status">画像を読み込んでください。</div></aside></main><script>
+</div>
+<div class="group" id="layoutPresetGroup">
+ <label>障害物の配置プリセット（端末共通）</label>
+ <div class="layout-presets">
+  <input id="layoutPresetName" type="text" maxlength="60" placeholder="例：ステージ1" aria-label="プリセットの名前">
+  <button id="layoutPresetSave" type="button" class="primary">名前を付けて保存</button>
+  <select id="layoutPresetList" aria-label="保存済みプリセット"><option value="">保存済みの配置を選択</option></select>
+ </div>
+ <div class="layout-preset-actions">
+  <button id="layoutPresetLoad" type="button">選択を読込</button>
+  <button id="layoutPresetDelete" type="button">選択を削除</button>
+  <button id="layoutPresetExport" type="button">JSON書き出し</button>
+ </div>
+ <div class="layout-presets">
+  <button id="layoutPresetImport" type="button">JSONを読み込む</button>
+  <input id="layoutPresetImportFile" type="file" accept=".json,application/json" style="display:none">
+ </div>
+ <div class="hint">円・長方形の障害物と内部反射線を、壁基準の相対座標で保存します。端末固有の壁座標・画像・発射地点・角度は変更しません。JSONファイルで別の端末へ受け渡せます。</div>
+</div>
+<div aria-hidden="true" style="display:none"><button id="reset" type="button"></button><input checked="" id="showReverse" type="checkbox"/><input checked="" id="showBounds" type="checkbox"/></div><div class="group"><div class="row device-preset-row"><div class="device-presets"><button class="primary" id="presetIPhone16" type="button">iPhone 16</button><button class="primary" id="presetIPhoneSE2" type="button">iPhone SE2</button><button class="primary" id="presetIPad" type="button">iPad（未設定）</button></div></div><div class="row" style="margin:4px 0 10px"><button id="saveDeviceSettings" type="button">選択中の機種に現在の設定を保存</button></div><div class="source-size-controls"><span>発射地点の中心点</span><div class="source-size-step"><button id="sourceSizeMinus" type="button" aria-label="中心点のサイズを5%小さく">−</button><strong id="sourceSizeLabel">100%</strong><button id="sourceSizePlus" type="button" aria-label="中心点のサイズを5%大きく">＋</button></div></div><div class="source-size-controls ray-width-controls"><span>反射線の太さ</span><div class="source-size-step"><button id="rayWidthMinus" type="button" aria-label="反射線を5%細く">−</button><strong id="rayWidthLabel">100%</strong><button id="rayWidthPlus" type="button" aria-label="反射線を5%太く">＋</button></div></div><div class="ball-diameter-controls"><label class="checkbox" style="margin:0"><input id="showBallShape" type="checkbox">正円を表示</label><strong>直径15.0%</strong></div><label>壁の座標（画像全体に対する割合）</label><div class="coord-grid"><div class="coord-card"><strong>左上</strong><label>X（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallX1" data-dir="-1" aria-label="wallX1を0.01%減らす">−</button><input id="wallX1" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallX1" data-dir="1" aria-label="wallX1を0.01%増やす">＋</button></span></label><label>Y（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallY1" data-dir="-1" aria-label="wallY1を0.01%減らす">−</button><input id="wallY1" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallY1" data-dir="1" aria-label="wallY1を0.01%増やす">＋</button></span></label><small id="wallPx1">画像読み込み後にpx座標を表示</small></div><div class="coord-card"><strong>右下</strong><label>X（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallX2" data-dir="-1" aria-label="wallX2を0.01%減らす">−</button><input id="wallX2" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallX2" data-dir="1" aria-label="wallX2を0.01%増やす">＋</button></span></label><label>Y（%）<span class="coord-nudge"><button type="button" data-wall-nudge="wallY2" data-dir="-1" aria-label="wallY2を0.01%減らす">−</button><input id="wallY2" max="100" min="0" step="0.01" type="number"/><button type="button" data-wall-nudge="wallY2" data-dir="1" aria-label="wallY2を0.01%増やす">＋</button></span></label><small id="wallPx2">画像読み込み後にpx座標を表示</small></div></div><div class="row"><button id="saveWallCoords">壁の座標を保存</button><button id="copyWallCoords">座標をコピー</button></div><label class="checkbox"><input id="wallLock" type="checkbox"/>壁の座標を固定（画像上の誤操作を防止）</label><div class="hint">%座標は画像の大きさに依存しません。同じ画面構成のスクショで再利用できます。画面比率やゲームの表示領域が違う端末では座標を調整してください。</div></div><div class="group"><label>画像の表示</label><div class="row"><button id="saveInitialCenter">現在の表示中心を初期位置に保存</button><button id="centerOnWall">壁の中心に移動</button><button id="focusRightGame">右側ゲームへ移動</button></div><div class="hint">横長のiPadスクショは、右側のゲームウインドウを自動で拡大表示します。ウインドウの位置・サイズを固定して使用してください。</div><div class="inline-label"><label for="zoomRange">表示倍率</label><strong id="zoomLabel">55%</strong></div><input id="zoomRange" max="200" min="10" step="1" type="range" value="55"/><div class="row"><button id="zoomMinus">−1%</button><input id="zoomInput" max="200" min="10" step="1" type="number" value="55"/><span>%</span><button id="zoomPlus">+1%</button><button id="zoomFit">画面に合わせる</button><button id="zoomReset">55%に戻す</button></div><label class="checkbox"><input id="zoomLock" type="checkbox"/>表示倍率を固定する</label><div class="hint">画像の縦横比は維持されます。2本指でピンチ拡大・縮小、2本指で画像を移動できます。倍率固定中は移動のみ可能です。</div></div><div class="group"><button class="primary" id="save">軌道付き画像を保存</button></div><div class="status" id="status">画像を読み込んでください。</div></aside></main><script>
 (()=>{'use strict';const $=id=>document.getElementById(id),c=$('canvas'),ctx=c.getContext('2d'),viewer=$('viewer');
 
 // PC用レイアウト仕切り。スマホ・iPadでは表示しない。
@@ -721,6 +748,136 @@ document.querySelectorAll('[data-wall-nudge]').forEach(b=>{
 $('saveWallCoords').onclick=()=>{if($('wallLock').checked)return;const vals=['wallX1','wallY1','wallX2','wallY2'].map(id=>Number($(id).value));if(vals.some(v=>!Number.isFinite(v)||v<0||v>100)){status('座標は0〜100%で指定してください。');return}const [x1,y1,x2,y2]=vals.map(v=>v/100);if(x1>=x2||y1>=y2){status('左上のX・Yは右下より小さくしてください。');return}bounds={x1,y1,x2,y2};saveBounds();refreshWallCoords();draw();status('壁の座標を保存しました。固定する場合はチェックを入れてください。')};
 $('copyWallCoords').onclick=async()=>{const t=`左上: X=${(bounds.x1*100).toFixed(2)}%, Y=${(bounds.y1*100).toFixed(2)}%\n右下: X=${(bounds.x2*100).toFixed(2)}%, Y=${(bounds.y2*100).toFixed(2)}%` ;try{await navigator.clipboard.writeText(t);status('壁の座標をコピーしました。')}catch(e){status(t)}};
 refreshWallCoords();
+
+// 配置プリセット：壁の左上=(0,0)、右下=(1,1)の相対座標で保存する。
+// 円と長方形の寸法は元から壁に対する割合で、中心座標のみ変換する。
+const LAYOUT_PRESETS_KEY='reflection-layout-presets-v1';
+let layoutPresets={};
+try{
+ const saved=JSON.parse(localStorage.getItem(LAYOUT_PRESETS_KEY));
+ if(saved&&typeof saved==='object'&&!Array.isArray(saved))layoutPresets=saved;
+}catch(e){}
+function wallFrame(){
+ const left=Math.min(bounds.x1,bounds.x2),right=Math.max(bounds.x1,bounds.x2),
+       top=Math.min(bounds.y1,bounds.y2),bottom=Math.max(bounds.y1,bounds.y2);
+ const width=right-left,height=bottom-top;
+ if(width<=0.00001||height<=0.00001)throw Error('壁の幅と高さを正しく設定してください。');
+ return {left,top,width,height};
+}
+function relativePoint(p,f){return {x:(p.x-f.left)/f.width,y:(p.y-f.top)/f.height};}
+function imagePoint(p,f){return {x:f.left+p.x*f.width,y:f.top+p.y*f.height};}
+function currentLayout(name){
+ const f=wallFrame();
+ return {
+  format:'reflection-wall-relative-layout',version:1,name,
+  savedAt:new Date().toISOString(),
+  shapes:shapes.map(sh=>({...relativePoint(sh,f),type:sh.type,w:sh.w,h:sh.h})),
+  lines:obstacles.map(seg=>seg.map(p=>relativePoint(p,f)))
+ };
+}
+function validCoord(n){return typeof n==='number'&&Number.isFinite(n)&&Math.abs(n)<100;}
+function validatedLayout(data){
+ if(!data||data.format!=='reflection-wall-relative-layout'||data.version!==1||
+    !Array.isArray(data.shapes)||!Array.isArray(data.lines)||data.shapes.length>100||data.lines.length>100)
+  throw Error('このツールの配置JSON（version 1）ではありません。');
+ const cleanShapes=data.shapes.map(sh=>{
+  if(!sh||!['circle','rect'].includes(sh.type)||
+     !validCoord(sh.x)||!validCoord(sh.y)||!validCoord(sh.w)||!validCoord(sh.h)||
+     sh.w<=0||sh.h<=0||sh.w>1||sh.h>1)throw Error('円・長方形の座標または大きさが不正です。');
+  return {type:sh.type,x:sh.x,y:sh.y,w:sh.w,h:sh.h};
+ });
+ const cleanLines=data.lines.map(seg=>{
+  if(!Array.isArray(seg)||seg.length!==2||seg.some(p=>!p||!validCoord(p.x)||!validCoord(p.y)))
+    throw Error('内部反射線の座標が不正です。');
+  return seg.map(p=>({x:p.x,y:p.y}));
+ });
+ return {name:String(data.name||'読込配置').trim().slice(0,60)||'読込配置',shapes:cleanShapes,lines:cleanLines};
+}
+function storeLayouts(){
+ try{localStorage.setItem(LAYOUT_PRESETS_KEY,JSON.stringify(layoutPresets));return true}
+ catch(e){status('プリセットを保存できませんでした。ブラウザの空き容量・保存設定をご確認ください。');return false}
+}
+function refreshLayoutPresetList(selected=''){
+ const sel=$('layoutPresetList');sel.replaceChildren();
+ const hint=document.createElement('option');hint.value='';hint.textContent='保存済みの配置を選択';sel.appendChild(hint);
+ Object.keys(layoutPresets).sort((a,b)=>a.localeCompare(b,'ja')).forEach(name=>{
+  const opt=document.createElement('option');opt.value=name;opt.textContent=name;sel.appendChild(opt);
+ });
+ sel.value=selected in layoutPresets?selected:'';
+}
+function applyLayout(data){
+ const v=validatedLayout(data),f=wallFrame();
+ // 壁外にはみ出る相対座標も切り捨てずに復元する。
+ shapes=v.shapes.map(sh=>({...imagePoint(sh,f),type:sh.type,w:sh.w,h:sh.h}));
+ obstacles=v.lines.map(seg=>seg.map(pt=>imagePoint(pt,f)));
+ selectedShape=-1;shapeDraft=null;obstacleHover=null;
+ saveShapes();saveObstacles();refreshObstacleCount();updateShapeControls();setMode('aim');draw();
+ return v.name;
+}
+$('layoutPresetSave').onclick=()=>{
+ const name=$('layoutPresetName').value.trim();
+ if(!name){status('保存する配置の名前を入力してください。');return}
+ if(Object.prototype.hasOwnProperty.call(layoutPresets,name)&&!confirm('「'+name+'」を上書き保存しますか？'))return;
+ try{
+  const layout=currentLayout(name);
+  layoutPresets[name]=layout;
+  if(storeLayouts()){refreshLayoutPresetList(name);status('「'+name+'」を保存しました（円・長方形 '+layout.shapes.length+'個、内部反射線 '+layout.lines.length+'本）。')}
+ }catch(e){status(e.message)}
+};
+$('layoutPresetLoad').onclick=()=>{
+ const name=$('layoutPresetList').value;
+ if(!name||!layoutPresets[name]){status('読み込むプリセットを選択してください。');return}
+ if(!confirm('現在の障害物配置を「'+name+'」に置き換えますか？'))return;
+ try{applyLayout(layoutPresets[name]);$('layoutPresetName').value=name;status('「'+name+'」を読み込みました。端末の壁座標は維持しています。')}
+ catch(e){status('読み込みできません：'+e.message)}
+};
+$('layoutPresetDelete').onclick=()=>{
+ const name=$('layoutPresetList').value;
+ if(!name||!layoutPresets[name]){status('削除するプリセットを選択してください。');return}
+ if(!confirm('保存済みの「'+name+'」を削除しますか？（現在の画面上の障害物は残ります）'))return;
+ delete layoutPresets[name];storeLayouts();refreshLayoutPresetList();status('「'+name+'」を削除しました。');
+};
+$('layoutPresetExport').onclick=()=>{
+ try{
+  // 保存名を選んでいる場合はそのプリセットを書き出す。未選択なら現在の配置。
+  const selected=$('layoutPresetList').value;
+  const name=$('layoutPresetName').value.trim()||'現在の配置';
+  const data=selected&&layoutPresets[selected]?layoutPresets[selected]:currentLayout(name);
+  validatedLayout(data);
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download=(data.name||name).replace(/[\\/:*?"<>|]/g,'_').slice(0,60)+'.json';
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  status('JSONを書き出しました：'+link.download);
+ }catch(e){status('書き出しできません：'+e.message)}
+};
+$('layoutPresetImport').onclick=()=>$('layoutPresetImportFile').click();
+$('layoutPresetImportFile').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>1024*1024)throw Error('ファイルが大きすぎます（最大1MB）。');
+  const raw=JSON.parse(await file.text());
+  const v=validatedLayout(raw);
+  let name=v.name;
+  if(Object.prototype.hasOwnProperty.call(layoutPresets,name)){
+   const suffix='（取込）';
+   let i=1;while(Object.prototype.hasOwnProperty.call(layoutPresets,name+suffix+(i>1?i:'')))i++;
+   name=name+suffix+(i>1?i:'');
+  }
+  const imported={format:'reflection-wall-relative-layout',version:1,name,
+   savedAt:new Date().toISOString(),shapes:v.shapes,lines:v.lines};
+  if(!confirm('「'+name+'」を保存して現在の配置にも読み込みますか？'))return;
+  layoutPresets[name]=imported;
+  if(!storeLayouts())return;
+  applyLayout(imported);
+  refreshLayoutPresetList(name);$('layoutPresetName').value=name;
+  status('JSONから「'+name+'」を読み込みました。壁座標はこの端末のままです。');
+ }catch(err){status('JSON読込エラー：'+err.message)}
+ finally{e.target.value=''}
+});
+refreshLayoutPresetList();
+
 $('shapeWidth').oninput=()=>{const sh=shapes[selectedShape]||shapeDraft;if(sh){sh.w=Number($('shapeWidth').value)/100;constrainShape(sh);if(selectedShape>=0)saveShapes();}updateShapeControls();draw()};
 $('shapeHeight').oninput=()=>{const sh=shapes[selectedShape]||shapeDraft;if(sh&&sh.type==='rect'){sh.h=Number($('shapeHeight').value)/100;constrainShape(sh);if(selectedShape>=0)saveShapes();}updateShapeControls();draw()};
 $('shapeDelete').onclick=()=>{if(selectedShape>=0){shapes.splice(selectedShape,1);selectedShape=-1;saveShapes();updateShapeControls();draw()}};
